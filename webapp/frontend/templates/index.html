@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI StudyMate</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<!-- ============ AUTH SCREEN ============ -->
+<div id="auth-screen" class="auth-screen">
+  <div class="auth-backdrop"></div>
+  <div class="auth-card">
+    <div class="brand">
+      <span class="brand-mark">§</span>
+      <div>
+        <h1>AI StudyMate</h1>
+        <p class="brand-sub">Your offline-first study desk</p>
+      </div>
+    </div>
+
+    <div class="tab-switch">
+      <button class="tab-btn active" data-tab="login">Log in</button>
+      <button class="tab-btn" data-tab="register">Create account</button>
+    </div>
+
+    <form id="login-form" class="auth-form">
+      <label>Username
+        <input type="text" name="username" placeholder="admin" required autocomplete="username" />
+      </label>
+      <label>Password
+        <input type="password" name="password" placeholder="1234" required autocomplete="current-password" />
+      </label>
+      <p class="hint">Try the demo account — <strong>admin / 1234</strong></p>
+      <button type="submit" class="btn-primary">Enter the desk →</button>
+      <p class="auth-error" id="login-error"></p>
+    </form>
+
+    <form id="register-form" class="auth-form hidden">
+      <label>Choose a username
+        <input type="text" name="username" required autocomplete="username" />
+      </label>
+      <label>Choose a password
+        <input type="password" name="password" required autocomplete="new-password" />
+      </label>
+      <button type="submit" class="btn-primary">Create account</button>
+      <p class="auth-error" id="register-error"></p>
+      <p class="auth-success" id="register-success"></p>
+    </form>
+  </div>
+</div>
+
+<!-- ============ DASHBOARD ============ -->
+<div id="app-screen" class="app-screen hidden">
+
+  <aside class="sidebar">
+    <div class="brand brand-compact">
+      <span class="brand-mark">§</span>
+      <h1>StudyMate</h1>
+    </div>
+
+    <nav class="nav">
+      <button class="nav-btn active" data-view="home">
+        <span class="nav-num">01</span> Desk
+      </button>
+      <button class="nav-btn" data-view="chat">
+        <span class="nav-num">02</span> Ask AI
+      </button>
+      <button class="nav-btn" data-view="summarize">
+        <span class="nav-num">03</span> Summarize
+      </button>
+      <button class="nav-btn" data-view="search">
+        <span class="nav-num">04</span> Search notes
+      </button>
+      <button class="nav-btn" data-view="quiz">
+        <span class="nav-num">05</span> Quiz
+      </button>
+      <button class="nav-btn" data-view="planner">
+        <span class="nav-num">06</span> Planner
+      </button>
+      <button class="nav-btn" data-view="about">
+        <span class="nav-num">07</span> About
+      </button>
+      <button class="nav-btn hidden" data-view="admin" id="nav-admin">
+        <span class="nav-num">08</span> Admin
+      </button>
+    </nav>
+
+    <div class="sidebar-foot">
+      <button id="voice-toggle" class="voice-toggle" title="Toggle read-aloud">
+        <span id="voice-icon">🔊</span> <span id="voice-label">Voice on</span>
+      </button>
+      <button id="logout-btn" class="logout-btn">Log out</button>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- ---- HOME / UPLOAD ---- -->
+    <section class="view active" id="view-home">
+      <header class="view-head">
+        <p class="eyebrow">Desk</p>
+        <h2>Bring your notes to the desk.</h2>
+        <p class="lede">Upload a PDF or a photo of your notes — everything else on this page reads from what you upload here.</p>
+      </header>
+
+      <div class="upload-grid">
+        <div class="upload-card">
+          <div class="upload-card-icon">📄</div>
+          <h3>Upload a PDF</h3>
+          <p>Lecture notes, textbook chapters, past papers.</p>
+          <label class="file-drop">
+            <input type="file" id="pdf-input" accept="application/pdf" hidden />
+            <span>Choose PDF file</span>
+          </label>
+          <div class="status-line" id="pdf-status"></div>
+        </div>
+
+        <div class="upload-card">
+          <div class="upload-card-icon">🖼️</div>
+          <h3>Upload an image</h3>
+          <p>A photo of a whiteboard, a handwritten page, a diagram.</p>
+          <label class="file-drop">
+            <input type="file" id="image-input" accept="image/png, image/jpeg" hidden />
+            <span>Choose image file</span>
+          </label>
+          <div class="status-line" id="image-status"></div>
+          <img id="image-preview" class="image-preview hidden" alt="Uploaded preview" />
+        </div>
+      </div>
+    </section>
+
+    <!-- ---- CHAT ---- -->
+    <section class="view" id="view-chat">
+      <header class="view-head">
+        <p class="eyebrow">Ask AI</p>
+        <h2>Ask a question about your notes.</h2>
+        <p class="lede">Reads whatever PDF or image you uploaded on the Desk and answers from it directly — otherwise it falls back to a small built-in glossary.</p>
+      </header>
+
+      <div class="chat-window" id="chat-window">
+        <div class="chat-bubble bubble-ai">Upload a PDF or image on the Desk, then ask me anything about it.</div>
+      </div>
+
+      <form id="chat-form" class="chat-input-row">
+        <input type="text" id="chat-input" placeholder="Ask your question…" autocomplete="off" required />
+        <button type="submit" class="btn-primary">Ask</button>
+      </form>
+    </section>
+
+    <!-- ---- SUMMARIZE ---- -->
+    <section class="view" id="view-summarize">
+      <header class="view-head">
+        <p class="eyebrow">Summarize</p>
+        <h2>The five lines that matter.</h2>
+        <p class="lede">Pulls the first meaningful sentences out of your uploaded PDF.</p>
+      </header>
+
+      <button id="summarize-btn" class="btn-primary btn-wide">Summarize my notes</button>
+      <div id="summary-output" class="sticky-note hidden"></div>
+    </section>
+
+    <!-- ---- SEARCH ---- -->
+    <section class="view" id="view-search">
+      <header class="view-head">
+        <p class="eyebrow">Search notes</p>
+        <h2>Find a keyword instantly.</h2>
+        <p class="lede">Checks your uploaded PDF for a word or phrase and shows where it appears.</p>
+      </header>
+
+      <form id="search-form" class="chat-input-row">
+        <input type="text" id="search-input" placeholder="Enter a keyword…" autocomplete="off" required />
+        <button type="submit" class="btn-primary">Search</button>
+      </form>
+      <div id="search-output" class="sticky-note hidden"></div>
+    </section>
+
+    <!-- ---- QUIZ ---- -->
+    <section class="view" id="view-quiz">
+      <header class="view-head">
+        <p class="eyebrow">Quiz</p>
+        <h2>Quick recall check.</h2>
+        <p class="lede">Built from your uploaded PDF or image when one's on file — otherwise a sample quiz. Answers reveal on tap, no scorekeeping.</p>
+      </header>
+      <div id="quiz-list" class="quiz-list"></div>
+    </section>
+
+    <!-- ---- PLANNER ---- -->
+    <section class="view" id="view-planner">
+      <header class="view-head">
+        <p class="eyebrow">Planner</p>
+        <h2>This week at the desk.</h2>
+        <p class="lede">A default weekly rhythm — revise it however your syllabus actually runs.</p>
+      </header>
+      <div id="planner-list" class="planner-list"></div>
+    </section>
+
+    <!-- ---- ABOUT ---- -->
+    <section class="view" id="view-about">
+      <header class="view-head">
+        <p class="eyebrow">About</p>
+        <h2>AI StudyMate, web edition.</h2>
+      </header>
+      <div id="about-body" class="about-body sticky-note"></div>
+    </section>
+
+    <!-- ---- ADMIN (admin account only) ---- -->
+    <section class="view" id="view-admin">
+      <header class="view-head">
+        <p class="eyebrow">Admin</p>
+        <h2>Who's using StudyMate.</h2>
+        <p class="lede">Only visible to the admin account.</p>
+      </header>
+
+      <div class="admin-stats" id="admin-stats"></div>
+
+      <h3 class="stack-title">Online right now</h3>
+      <div id="admin-online" class="notes-list"></div>
+
+      <h3 class="stack-title" style="margin-top:26px;">Login history</h3>
+      <div id="admin-history" class="notes-list"></div>
+    </section>
+
+  </main>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
